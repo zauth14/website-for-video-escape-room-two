@@ -85,39 +85,47 @@
     const codeInputSection = document.getElementById('codeInputSection');
     const errorMessage = document.getElementById('errorMessage');
     const codeInput = document.getElementById('codeInput');
-
+  
     const videoPaths = [
-      'videos/video1.mp4',
-      'videos/video2.mp4',
-      'videos/video3.mp4',
-      'videos/video4.mp4',
-      'videos/video5.mp4',
-      'videos/video6.mp4',
-      'videos/video7.mp4',
-      'videos/video8.mp4',
-      'videos/video9.mp4',
-      'videos/video10.mp4',
+      'videos/garbled.mp4',
+      'videos/garbled_two.mp4',
+      'videos/garbled_three.mp4',
+      'videos/garbled_four.mp4',
+      'videos/garbled_five.mp4',
+      'videos/garbled_six.mp4',
+      'videos/garbled_seven.mp4',
+      'videos/garbled_eight.mp4',
+      'videos/garbled_nine.mp4',
+      'videos/og.mp4'
     ];
-
+  
     const videoCodes = new Set([
-      'alpha', 'bravo', 'charlie', 'delta', 'echo',
-      'foxtrot', 'golf', 'hotel', 'india', 'juliet'
+      'sketchers',
+      '56137428',
+      'burglary',
+      '1907',
+      'sfmdwnlts',
+      '75',
+      'caption',
+      'all hail avocados',
+      '51013162430333844475157646671'
     ]);
-
+  
     let usedCodes = new Set();
     let currentIndex = 0;
-
+  
     function loadVideo(index) {
       videoPlayer.src = videoPaths[index];
+      videoPlayer.loop = true;
       videoPlayer.load();
+      videoPlayer.play().catch(err => console.error('Autoplay error:', err));
       errorMessage.textContent = '';
       codeInput.value = '';
-      videoPlayer.play();
     }
-
+  
     function checkCode() {
       const enteredCode = codeInput.value.trim().toLowerCase();
-
+  
       if (!videoCodes.has(enteredCode)) {
         errorMessage.textContent = 'Invalid code. Try again.';
       } else if (usedCodes.has(enteredCode)) {
@@ -125,59 +133,69 @@
       } else {
         usedCodes.add(enteredCode);
         currentIndex++;
-        if (currentIndex < videoPaths.length) {
+  
+        if (currentIndex < videoPaths.length - 1) {
+          // Load next video and show code prompt again
           loadVideo(currentIndex);
-        } else {
-          codeInputSection.innerHTML = `
-            <h2>Congratulations! You've escaped.</h2>
-            <div id="questionnaire">
-              <h3>Final Challenge: Answer these questions</h3>
-              <form id="questionnaireForm">
-                <p>1. What are the three things 'A Heist Agency' exists for?</p>
-                <input type="text" name="q1" required /><br />
-
-                <p>2. What is the only code we need to abide by (1–5)</p>
-                <input type="text" name="q2" required /><br />
-
-                <p>3. What do we think 'legal' is? A bunch of...? </p>
-                <input type="text" name="q3" required /><br /><br />
-
-                <button type="submit">Submit Answers</button>
-              </form>
-            </div>
-          `;
-
-          videoPlayer.style.display = 'none';
-          muteButton.style.display = 'none';
-
-          document.getElementById('questionnaireForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const answers = {
-              q1: formData.get('q1'),
-              q2: formData.get('q2'),
-              q3: formData.get('q3')
-            };
-            console.log("User responses:", answers);
-
-            codeInputSection.innerHTML = `
-              <h2>Transmission Complete</h2>
-              <p>Your answers have been recorded.</p>
-              <p>🕵️ To receive your next mission, call: <strong style="color:#00ffcc;">+1 (503) 734-8312</strong></p>
-              <p>This line will self-destruct in 10 seconds. Just kidding. But seriously, call the number.</p>
-            `;
-          });
+        } else if (currentIndex === videoPaths.length - 1) {
+          // 9th code submitted — show final video with questionnaire
+          loadVideo(currentIndex);
+          showQuestionnaire();
         }
       }
     }
-
+  
+    function showQuestionnaire() {
+      codeInputSection.innerHTML = `
+        <h2>Congratulations! You've escaped.</h2>
+        <div id="questionnaire">
+          <h3>Final Challenge: Answer these questions</h3>
+          <form id="questionnaireForm">
+            <p>1. What are the three things 'A Heist Agency' exists for?</p>
+            <input type="text" name="q1" required /><br />
+  
+            <p>2. What is the only code we need to abide by (1–5)</p>
+            <input type="text" name="q2" required /><br />
+  
+            <p>3. What do we think 'legal' is? A bunch of...? </p>
+            <input type="text" name="q3" required /><br /><br />
+  
+            <button type="submit">Submit Answers</button>
+          </form>
+        </div>
+      `;
+  
+      document.getElementById('questionnaireForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const answers = {
+          q1: formData.get('q1'),
+          q2: formData.get('q2'),
+          q3: formData.get('q3')
+        };
+        console.log("User responses:", answers);
+        showFinalScreen();
+      });
+    }
+  
+    function showFinalScreen() {
+      codeInputSection.innerHTML = `
+        <h2>Transmission Complete</h2>
+        <p>Your answers have been recorded.</p>
+        <p>🕵️ To receive your next mission, call: <strong style="color:#00ffcc;">+1 (503) 734-8312</strong></p>
+        <p>This line will self-destruct in 10 seconds. Just kidding. But seriously, call the number.</p>
+      `;
+      videoPlayer.style.display = 'none';
+      muteButton.style.display = 'none';
+    }
+  
     function toggleMute() {
       videoPlayer.muted = !videoPlayer.muted;
       muteButton.textContent = videoPlayer.muted ? '🔇 Mute' : '🔊 Unmute';
     }
-
+  
     loadVideo(currentIndex);
-  </script>
+  </script>  
 
 </body>
 </html>
